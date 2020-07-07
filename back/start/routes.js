@@ -27,3 +27,7 @@ Route.group(() => {
     Route.post('forgotpass', 'UserController.forgotPassword').middleware(['guest'])
     Route.post('recoverpass', 'UserController.recoverPassword')
 }).prefix('api')
+
+Route.group(() => {
+    Route.post('create', 'ProviderController.create').middleware(['check_store'])
+}).prefix('api/provider')

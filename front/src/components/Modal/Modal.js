@@ -49,11 +49,11 @@ const DialogActions = withStyles((theme) => ({
     },
 }))(MuiDialogActions);
 
-export default function CustomModal({isOpen, title, content, handleOnClose, handleOkButton, okButton}) {
+export default function CustomModal({isOpen, title, content, handleOnClose, handleOkButton, okButton, maxWidth="md"}) {
 
     return (
         <Fragment>
-            <Dialog onClose={handleOnClose} aria-labelledby="customized-dialog-title" open={isOpen} maxWidth="md" fullWidth={true}>
+            <Dialog onClose={handleOnClose} aria-labelledby="customized-dialog-title" open={isOpen} maxWidth={maxWidth} fullWidth={true}>
                 <DialogTitle id="customized-dialog-title" onClose={handleOnClose}>
                     {title}
                 </DialogTitle>

@@ -80,9 +80,7 @@ const structure = [
             { label: "Charts", link: "/app/ui/charts" },
             { label: "Maps", link: "/app/ui/maps" },
         ],
-    },
-    { id: 7, type: "divider" },
-    { id: 8, type: "title", label: "HELP" },
+    }
 ];
 
 function Sidebar({ location }) {
