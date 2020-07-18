@@ -15,7 +15,9 @@ class ProviderSchema extends Schema {
             table.string('type_ident', 4).notNullable()
             table.string('address', 254).notNullable()
             table.string('estado', 10).notNullable().defaultTo('activo')
-            table.string('contacto', 254)
+            table.string('email', 254)
+            table.string('phone', 254)
+            table.unique(['ident', 'type_ident'], 'unique_provider')
         })
     }
 
