@@ -31,6 +31,11 @@ class User extends Model {
         return this.hasMany('App/Models/Token')
     }
 
+    stores () {
+        return this.belongsToMany('App/Models/Store', 'user_id', 'store_id')
+            .pivotTable('store_user')
+    }
+
     static get hidden() {
         return ['created_at', 'updated_at', 'deleted_at', 'created_by', 'password']
     }

@@ -5,8 +5,29 @@ const Logger = use('Logger')
 
 class ProviderController {
 
-    async list({}) {
+    async list({request, response}) {
+
+        const data = await validarRequest(request, {
+			filter: { rule: 'string', default: '' },
+			page: { rule: 'required|integer' },
+            limit: { rule: 'required|integer' },
+            order: { rule: 'string', default: 'asc' },
+            field: { rule:'required_if:order|string', default: 'name' }
+        })
         
+        Logger.debug('Data for list of providers %j', data)
+
+		const providers = await Provider.query()
+			.where('store_id', request.store_id)
+			.where(query => {
+				query.where('name', 'like', `${data.filter}%`)
+					.orWhere('ident', 'like', `%${data.filter}%`)
+			})
+			.orderBy(data.field, data.order)
+            .paginate(data.page, data.limit)
+            
+		return response.send( providers.toJSON() )
+
     }
 
     async create({ request, response }) {

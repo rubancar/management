@@ -18,6 +18,7 @@ class ProviderSchema extends Schema {
             table.string('email', 254)
             table.string('phone', 254)
             table.unique(['ident', 'type_ident'], 'unique_provider')
+            table.integer('store_id', 10).unsigned().references('id').inTable('store').notNullable()
         })
     }
 

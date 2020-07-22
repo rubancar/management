@@ -8,6 +8,10 @@ class Store extends Model {
     static get table () {
         return 'store'
     }
+
+    providers() {
+        return this.hasMany('App/Models/Provider', 'id', 'store_id')
+    }
 }
 
 module.exports = Store

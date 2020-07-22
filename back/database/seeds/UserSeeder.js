@@ -15,26 +15,29 @@ const Factory = use('Factory')
 const Logger = use('Logger')
 
 class UserSeeder {
-  async run () {
-      // Create users - Asignar rol
-      let users = [
-          {
-              email: 'rubenandres92@gmail.com',
-              name: 'Rubén Carvajal',
-          },
-          {
-              email: 'yolanda@mailinator.com',
-              name: 'Yolanda Ulloa',
-          }
-      ]
+    async run() {
+        // Create users - Asignar rol
+        let users = [
+            {
+                email: 'rubenandres92@gmail.com',
+                name: 'Rubén Carvajal',
+            },
+            {
+                email: 'yolanda@mailinator.com',
+                name: 'Yolanda Ulloa',
+            }
+        ]
 
-      for (const user of users) {
-          await Factory.model('App/Models/User').create(user)
-      }
+        // create 2 users and associate them with 2 stores
+        for (const u of users) {
+            const user = await Factory.model('App/Models/User').create(u)
+            const store = await Factory.model('App/Models/Store').make()
+            await user.stores().save(store)
+        }
 
-      Logger.info('Users successfully created')
+        Logger.info('Users successfully created')
 
-  }
+    }
 }
 
 module.exports = UserSeeder

@@ -19,9 +19,13 @@ function userReducer(state, action) {
 }
 
 function UserProvider({ children }) {
-    var [state, dispatch] = React.useReducer(userReducer, {
-        isAuthenticated: !!localStorage.getItem("id_token"),
-    });
+
+    const isAuthenticated = !!localStorage.getItem("id_token")
+
+    var [state, dispatch] = React.useReducer(userReducer, { isAuthenticated });
+
+    if(isAuthenticated) 
+        axios.defaults.headers.common['Store-id'] = '1' // for POST requests
 
     return (
         <UserStateContext.Provider value={state}>
@@ -74,6 +78,8 @@ function loginUser(dispatch, login, password, history, setIsLoading, setError) {
 
                 const { token } = tokens
                 localStorage.setItem('id_token', token)
+                // TODO: logic for setting the store configured for the current user
+                axios.defaults.headers.common['Store-id'] = '1' // for POST requests
                 setError(null)
                 setIsLoading(false)
                 dispatch({ type: 'LOGIN_SUCCESS' })

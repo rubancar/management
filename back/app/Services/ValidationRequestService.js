@@ -11,6 +11,10 @@ module.exports = {
             const validateObject = {}
             const sanitizeObject = {}
             let ejecutarSanitize = false
+            let replace_body = false
+            // TODO: we can tune this up in order to avoid the body copy, for now its neccesary
+            // because AdonisJS internal implemenatation of Request
+            let body_copy = JSON.parse(JSON.stringify(request.body))
             const filtroCampos = Object.entries(campos).map(([key, value]) => {
                 if (value instanceof Object) {
                     if (value.rule)  // obtenemos la regla de filtrado para el campo
@@ -19,9 +23,14 @@ module.exports = {
                         sanitizeObject[key] = value.sanitize
                         ejecutarSanitize = true
                     }
+                    if (typeof(value.default) != "undefined") {
+                        replace_body = true
+                        body_copy[key] = body_copy[key] ? body_copy[key] : value.default
+                    }
                 }
                 return key
             })
+            if(replace_body) request.body = body_copy
 
             let data
             if (ejecutarSanitize) data = sanitize(request.only(filtroCampos), sanitizeObject)

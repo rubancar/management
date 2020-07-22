@@ -23,3 +23,28 @@ Factory.blueprint('App/Models/User', (faker, i, data) => {
         password: 'pass'
     }
 })
+
+Factory.blueprint('App/Models/Store', (faker, i, data) => {
+    const name = faker.company()
+    return {
+        ruc: faker.ssn({ dashes: false }),
+        nombre_comercial: name,
+        razon_social: name,
+        dir_matriz: faker.address(),
+        telef_matriz: faker.phone(),
+        correo_empresa: faker.email(),
+        num_resolucion: "N/A"
+    }
+})
+
+Factory.blueprint('App/Models/Provider', (faker, i, data) => {
+    return {
+        name: faker.company(),
+        ident: faker.ssn({ dashes: false }),
+        type_ident: "01",
+        address: faker.address(),
+        estado: "activo",
+        email: faker.email(),
+        phone: faker.phone()
+    }
+})
