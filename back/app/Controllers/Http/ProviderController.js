@@ -33,7 +33,7 @@ class ProviderController {
     async create({ request, response }) {
 
         const data = await validarRequest(request, {
-            type_ident: { rule: 'required|string' },
+            type_ident: { rule: 'required' },
             ident: { rule: 'required|string' },
             name: { rule: 'required|string' },
             email: { rule: 'required|email' },
@@ -52,6 +52,7 @@ class ProviderController {
             return response.status(412).send({ mensaje: `Provider with same identification '${data.ident}' already exists` })
         }
 
+        data.store_id = request.store_id
         // default behaviour in DB is to set activo
         // data.estado = 'activo'
         const new_provider = await Provider.create(data)

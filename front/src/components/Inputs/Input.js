@@ -14,22 +14,27 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-export default function Input({id, label, onChange, error, defaultValue, disabled, variant, margin, InputProps}) {
+export default function Input({id, label, onChange, validate, error, defaultValue, disabled, variant, margin, InputProps}) {
     const classes = useStyles();
-    const [value, setValue] = React.useState(defaultValue);
+    // const [value, setValue] = React.useState(defaultValue);
 
     const handleChange = (event) => {
-        setValue(event.target.value);
         onChange && onChange(event.target.value);
     };
+
+    const validateField = (event) => {
+        validate && validate(event.target.value);
+    }
 
     return (
         <>
             <FormControl className={classes.formControl}>
                 <TextField
                     id={id}
-                    value={value}
+                    //value={value}
                     onChange={handleChange}
+                    onFocus={()=>console.log('focus...')}
+                    onBlur={validateField}
                     label={label}
                     fullWidth
                     disabled={disabled}
