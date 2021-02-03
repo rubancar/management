@@ -14,17 +14,13 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-export default function Input({id, label, onChange, validate, error, defaultValue, disabled, variant, margin, InputProps}) {
+export default function Input({id, label, onChange, validate, error, defaultValue = "", disabled, variant, margin, InputProps}) {
     const classes = useStyles();
     // const [value, setValue] = React.useState(defaultValue);
 
     const handleChange = (event) => {
         onChange && onChange(event.target.value);
     };
-
-    const validateField = (event) => {
-        validate && validate(event.target.value);
-    }
 
     return (
         <>
@@ -33,8 +29,6 @@ export default function Input({id, label, onChange, validate, error, defaultValu
                     id={id}
                     //value={value}
                     onChange={handleChange}
-                    onFocus={()=>console.log('focus...')}
-                    onBlur={validateField}
                     label={label}
                     fullWidth
                     disabled={disabled}
@@ -50,9 +44,11 @@ export default function Input({id, label, onChange, validate, error, defaultValu
     );
 }
 
+/*
 Input.propTypes = {
-    id: PropTypes.string.isRequired,
+    id: PropTypes.string,
 };
+*/
 
 Input.defaultProps = {
     disabled: false,

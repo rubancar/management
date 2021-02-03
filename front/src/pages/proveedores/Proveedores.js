@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import PageTitle from "../../components/PageTitle";
 import { Grid } from "@material-ui/core";
 import MUIDataTable, { debounceSearchRender } from "mui-datatables";
 import ModalProveedor from "./ModalProveedor";
-import { list } from "../../actions/Proveedores"
+import { list, deleteProvider } from "../../actions/Proveedores"
+import CustomToolbarSelect from "./CustomToolbarSelect"
 
 const general_limit = 20
 
@@ -27,13 +28,6 @@ export default class Proveedores extends React.Component {
         this.reloadTable()
     }
 
-    //const [showModal, setModalState] = useState(false)
-
-    //const [dataList, setDataList] = useState({
-        
-    //})
-    //const [loading, setLoading] = useState(false)
-
     handlOpenModal = () => {
         this.setState({showModal:true})
     }
@@ -50,6 +44,9 @@ export default class Proveedores extends React.Component {
         this.setState({filter: searchText}, this.reloadTable)
     }
 
+    deleteProviders = (ids) => {
+
+    }
 
     reloadTable = () => {
         this.setState({loading: true})
@@ -69,28 +66,6 @@ export default class Proveedores extends React.Component {
             })
     }
 
-
-    // useEffect(() => {
-    //     // data to start fetching in the backend
-    //     console.log('using effect..... waoooo')
-    //     setLoading(true)
-    //     const { filter, page, sort, limit } = dataList
-    //     const data = { page: page + 1, limit, sort, filter }
-    //     list(data)
-    //         .then(res => {
-    //             setDataList({
-    //                 data: res.data,
-    //                 page: res.page - 1,
-    //                 total: res.total,
-    //                 limit: general_limit,
-    //                 sort: dataList.sort,
-    //                 filter: dataList.filter
-    //             })
-    //         })
-    // },
-    //     // trigger the effect only if one of these values change
-    //     [dataList.filter, dataList.page, dataList.sort]);
-
     render() {
 
         const {
@@ -105,6 +80,7 @@ export default class Proveedores extends React.Component {
                 <Grid item xs={12}>
                     <MUIDataTable
                         title="Lista de proveedores"
+                        serverSide = {true}
                         data={data}
                         columns={[
                             { name: "name", label: "Nombre" },
@@ -122,17 +98,17 @@ export default class Proveedores extends React.Component {
                             count: total,
                             rowsPerPageOptions: [],
                             customSearchRender: debounceSearchRender(400),
+                            customToolbarSelect: selectedRows => (
+                                <CustomToolbarSelect selectedRows={selectedRows} />
+                            )
                         }}
                     />
                 </Grid>
-                {
-                    showModal && <ModalProveedor
+                <ModalProveedor
                     isOpen={showModal}
                     title="Nuevo Proveedor"
                     handleOnClose={this.handleCloseModal}
                 />
-                }
-                
             </>
         );
     }

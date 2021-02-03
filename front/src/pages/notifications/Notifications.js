@@ -365,8 +365,8 @@ export default function NotificationsPage(props) {
     }
 
     var toastId = sendNotification(componentProps, {
-      type: notificationType,
-      position: positions[notificationsPosition],
+      type: "info",
+      //position: positions[notificationsPosition],
       progressClassName: classes.progress,
       onClose: notificationType === "error" && (() => setErrorToastId(null)),
       className: classes.notification,

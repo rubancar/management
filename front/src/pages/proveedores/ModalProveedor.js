@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
@@ -9,15 +9,14 @@ import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import Typography from '@material-ui/core/Typography';
 import { Grid } from "@material-ui/core";
-import { useFormDispatch, useFormState } from "../../context/FormContext";
 import { Select, Input } from "../../components/Inputs"
 import { isIdentificacionValida, isEmpty, isEmail } from "../../utils/helpers"
 import { tipoIdentificacionValue, tiposIdentificacion } from "../../utils/options"
-import errors from "../../utils/errors"
+import errorMessages from "../../utils/errors"
 import { create } from "../../actions/Proveedores"
-
-
-const form_name = "new_provider"
+import Notification from "../../components/Notification";
+import { toast } from 'react-toastify';
+import { useForm, Controller } from "react-hook-form";
 
 const styles = (theme) => ({
     root: {
@@ -29,7 +28,7 @@ const styles = (theme) => ({
         right: theme.spacing(1),
         top: theme.spacing(1),
         color: theme.palette.grey[500],
-    },
+    }
 });
 
 const DialogTitle = withStyles(styles)((props) => {
@@ -61,113 +60,57 @@ const DialogActions = withStyles((theme) => ({
 
 export default function ModalProveedor({ isOpen, title, handleOnClose, maxWidth = "md" }) {
 
-    const dispatch = useFormDispatch()
-    const state = useFormState()
+   const { control, formState: {errors}, handleSubmit, getValues, reset /*trigger,*/  } = useForm()
 
-    const updateValue = (value, field_name) => {
-        dispatch({
-            type: 'SET_VALUE',
-            form: form_name,
-            field: field_name,
-            value
-        })
-    }
-
-    // we must validate all fields on every blur event because in case the one fields depends on another
-    const validateForm = (value, field_name, validate_all=false) => {
-        let error = {}
-        let result = null
-        let value_ = null
-
-        if(validate_all || field_name == 'ident') {
-            const type_ident = state[form_name].type_ident.value.value
-            console.log('state[form_name]', state[form_name])
-            value_ = state[form_name].ident ? state[form_name].ident.value : ''
-            result = isEmpty(value_)
-            if(result) error.ident = errors.required
-            else {
-                result = isIdentificacionValida(type_ident, value_)
-                if(result.error) error.ident = result.mensaje
-            }            
-        }
-        if(validate_all || field_name == 'razon_social') {
-            value_ = state[form_name].razon_social ? state[form_name].razon_social.value : null
-            result = isEmpty(value_)
-            if(result) error.razon_social = errors.required
-        }
-        if(validate_all || field_name == 'email') {
-            value_ = state[form_name].email ? state[form_name].email.value : null
-            result = isEmail(value_)
-            console.log('email validation', result)
-            if(!result) error.email = errors.email
-        }
-        if(validate_all || field_name == 'address') {
-            value_ = state[form_name].address ? state[form_name].address.value : null
-            result = isEmpty(value_)
-            if(result) error.address = errors.required
-        }
-        if(validate_all || field_name == 'phone') {
-            value_ = state[form_name].phone ? state[form_name].phone.value : null
-            result = isEmpty(value_)
-            if(result) error.phone = errors.required
-        }
-
-        if(!!error) {
-            dispatch({
-                type: 'SET_ERROR',
-                form: form_name,
-                value: error
-            })
-        }
-        return !!error
-    }
-
-    const { [form_name]: form_data = {} } = state
-
-    const handleSaveButton = () => {
-
-        const data = Object.entries(form_data).reduce((obj, [key, value]) => {
-            obj[key] = value.value
-            return obj
-        }, {})
-
-        const result = validateForm(null, null, true)
-        if(!result) return
+    const handleSaveButton = (data) => {
 
         data.type_ident = data.type_ident.value
-        data.name = data.razon_social
         create(data)
         .then(res => {
-            if(res.data) {
-                console.log('respuesta', res.data)
-                console.log('provider correctly saved')
+            console.log("respuesta", res)
+            if(res.mensaje) {
+                toast( // lauch toast
+                    <Notification
+                        type= "info"
+                        message= {`${res.mensaje}`}
+                        variant= "contained"
+                        color= "primary"
+                    />,
+                    {
+                        type: "info",
+                        className: "custom-toast"
+                    }
+                );
+                return handleOnClose() // close modal
             }
         })
         .catch(err => {
-            console.log('err', err)
+            let message = "Error guardando proveedor"
+            if(err.response.data && err.response.data.mensaje)
+                message = err.response.data.mensaje
+            return toast(
+                <Notification
+                    type= "report"
+                    message= {message}
+                    variant= "contained"
+                    color= "secondary"
+                />,
+                {
+                    type: "error",
+                    className: "custom-toast",
+                }
+            );
         })
     }
 
     useEffect(() => {
-       
-        // returned function will be called on component unmount 
-        return () => {
+        // clear form from errors and daa when modal is closed
+        if(!isOpen) {
             console.log('limpiando form')
-            dispatch({
-                type: 'CLEAR_FORM',
-                form: form_name
-            })
         }
-      }, [])
-
-    // Get errors
-    const {
-        ident: { error: error_ident = null } = {},
-        razon_social: { error: error_razon_social = null } = {},
-        email: { error: error_email = null } = {},
-        address: { error: error_address = null } = {},
-        phone: { error: error_phone = null } = {},
-    } = form_data
+        // returned function will be called on component unmount 
+        // return () => {  }
+      }, [isOpen])
 
     return (
             <Dialog keepMounted={false} onClose={handleOnClose} aria-labelledby="customized-dialog-title" open={isOpen} maxWidth={maxWidth} fullWidth={true}>
@@ -177,55 +120,106 @@ export default function ModalProveedor({ isOpen, title, handleOnClose, maxWidth 
                 <DialogContent dividers>
                     <Grid container spacing={3}>
                         <Grid item xs={12} sm={6}>
-                            <Select
-                                label="Tipo de indentificación"
-                                options={tiposIdentificacion}
-                                onChange={(v) => updateValue(tipoIdentificacionValue(v), 'type_ident')}
+                            <Controller
+                                name="type_ident"
+                                control={control}
+                                defaultValue=""
+                                rules={{
+                                    required: errorMessages.required
+                                }}
+                                render={({ onChange }) => <Select
+                                    onChange={(v) => onChange(tipoIdentificacionValue(v))}
+                                    label="Tipo de indentificación"
+                                    options={tiposIdentificacion}
+                                    helperText={errors.type_ident ? errors.type_ident.message: undefined}
+                                />}
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                            <Input
-                                label="Identificación"
-                                id="ident"
-                                onChange={(v) => updateValue(v, 'ident')}
-                                validate={(v) => validateForm(v, 'ident')}
-                                error={error_ident}
+                            <Controller
+                                name="ident"
+                                control={control}
+                                defaultValue=""
+                                rules={{ validate: value => {
+                                        if(isEmpty(value)) return errorMessages.required
+                                        const typeIdent = getValues('type_ident')
+                                        if(!typeIdent) return true
+                                        const resultValidation = isIdentificacionValida(typeIdent.value, value)
+                                        if(resultValidation.error) return resultValidation.mensaje
+                                        return true
+                                    }}}
+                                render={({ onChange }) =>
+                                    <Input
+                                        label="Identificación"
+                                        onChange={onChange}
+                                        error={errors.ident ? errors.ident.message : undefined}
+                                    />
+                                }
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                            <Input
-                                label="Razón social"
-                                id="razon_social"
-                                onChange={(v) => updateValue(v, 'razon_social')}
-                                validate={(v) => validateForm(v, 'razon_social')}
-                                error={error_razon_social}
+                            <Controller
+                                name="name"
+                                control={control}
+                                defaultValue=""
+                                rules={{ required: errorMessages.required }}
+                                render={({ onChange }) =>
+                                    <Input
+                                        label="Razón social"
+                                        onChange={onChange}
+                                        error={errors.name ? errors.name.message : undefined}
+                                    />
+                                }
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                            <Input
-                                label="Correo"
-                                id="email"
-                                onChange={(v) => updateValue(v, 'email')}
-                                validate={(v) => validateForm(v, 'email')}
-                                error={error_email}
+                            <Controller
+                                name="email"
+                                control={control}
+                                defaultValue=""
+                                rules={{ validate: value => {
+                                        if(isEmpty(value)) return errorMessages.required
+                                        else if(!isEmail(value)) return errorMessages.email
+                                        return true
+                                    }
+                                }}
+                                render={({ onChange }) =>
+                                    <Input
+                                        label="Correo"
+                                        onChange={onChange}
+                                        error={errors.email ? errors.email.message : undefined}
+                                    />
+                                }
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                            <Input
-                                label="Dirección"
-                                id="address"
-                                onChange={(v) => updateValue(v, 'address')}
-                                validate={(v) => validateForm(v, 'address')}
-                                error={error_address}
+                            <Controller
+                                name="address"
+                                control={control}
+                                defaultValue=""
+                                rules={{ required: errorMessages.required  }}
+                                render={({ onChange }) =>
+                                    <Input
+                                        label="Dirección"
+                                        onChange={onChange}
+                                        error={errors.address ? errors.address.message : undefined}
+                                    />
+                                }
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                            <Input
-                                label="Teléfono"
-                                id="phone"
-                                onChange={(v) => updateValue(v, 'phone')}
-                                validate={(v) => validateForm(v, 'phone')}
-                                error={error_phone}
+                            <Controller
+                                name="phone"
+                                control={control}
+                                defaultValue=""
+                                rules={{ required: errorMessages.required  }}
+                                render={({ onChange }) =>
+                                    <Input
+                                        label="Teléfono"
+                                        onChange={onChange}
+                                        error={errors.phone ? errors.phone.message : undefined}
+                                    />
+                                }
                             />
                         </Grid>
                     </Grid>
@@ -234,7 +228,7 @@ export default function ModalProveedor({ isOpen, title, handleOnClose, maxWidth 
                     <Button autoFocus onClick={handleOnClose} color="primary">
                         Cancelar
                     </Button>
-                    <Button autoFocus onClick={handleSaveButton} color="primary">
+                    <Button autoFocus onClick={handleSubmit(handleSaveButton)} color="primary">
                         Guardar
                     </Button>
                 </DialogActions>

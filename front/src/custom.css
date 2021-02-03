@@ -1,0 +1,9 @@
+
+
+.custom-toast {
+    display: flex;
+    align-items: center;
+    background: transparent;
+    box-shadow: none;
+    overflow: visible
+}

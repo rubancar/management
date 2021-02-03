@@ -44,4 +44,20 @@ export default makeStyles(theme => ({
       background: "transparent",
     },
   },
+    // Toast styles
+    notificationItem: {
+        marginTop: theme.spacing(2),
+    },
+    notificationCloseButton: {
+        position: "absolute",
+        right: theme.spacing(2),
+    },
+    toastsContainer: {
+        width: 400,
+        marginTop: theme.spacing(6),
+        right: 0,
+    },
+    progress: {
+        visibility: "hidden",
+    },
 }));

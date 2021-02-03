@@ -3,6 +3,7 @@ import { HashRouter, Route, Switch, Redirect, BrowserRouter } from "react-router
 
 // components
 import Layout from "./Layout";
+import Toast from "./Notification/Toast";
 
 // pages
 import Error from "../pages/error";
@@ -18,6 +19,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+        <Toast/>
       <Switch>
         <Route exact path="/" render={() => <Redirect to="/app/dashboard" />} />
         <Route

@@ -8,21 +8,22 @@ import App from "./components/App";
 import * as serviceWorker from "./serviceWorker";
 import { LayoutProvider } from "./context/LayoutContext";
 import { UserProvider } from "./context/UserContext";
-import { FormProvider } from "./context/FormContext"
 
 import MainInterceptors from "./config/mainInterceptors"
+import { registerAuthHeaders } from "./actions/Auth"
+
+import "./custom.css"
 
 MainInterceptors()
+registerAuthHeaders()
 
 ReactDOM.render(
   <LayoutProvider>
     <UserProvider>
-      <FormProvider>
       <ThemeProvider theme={Themes.default}>
         <CssBaseline />
         <App />
       </ThemeProvider>
-      </FormProvider>
     </UserProvider>
   </LayoutProvider>,
   document.getElementById("root"),

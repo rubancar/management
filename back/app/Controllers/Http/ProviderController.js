@@ -48,7 +48,7 @@ class ProviderController {
             .first()
 
         if(exist_provider) {
-            Logger.debug(`Provider already exist with id %i:`, exist_provider)
+            Logger.debug(`Provider already exist with id %i:`, exist_provider.id)
             return response.status(412).send({ mensaje: `Provider with same identification '${data.ident}' already exists` })
         }
 
@@ -97,8 +97,41 @@ class ProviderController {
             }
     
         }
-        
-        
+
+        provider.merge(data)
+
+        // default behaviour in DB is to set activo
+        // data.estado = 'activo'
+        const edited_provider = await provider.save()
+
+        Logger.debug(`Provider edited %j:`, edited_provider)
+
+        return response.send({ mensaje: `Provider ${provider.name} editado exitosamente` })
+    }
+
+    async delete({ request, response }) {
+
+        const data = await validarRequest(request, {
+            ids: { rule: 'required|array' }
+        })
+
+        // check if provider already exists with the same identification
+        if(data.type_ident & data.ident) {
+
+            const exist_provider = await Provider.query()
+                .where('ident', data.ident)
+                .where('type_ident', data.type_ident)
+                .whereNot('id', data.id)
+                .first()
+
+            if(exist_provider) {
+                Logger.debug(`Provider already exist with id %i:`, exist_provider)
+                return response.status(412).send({ mensaje: `Provider with same identification '${data.ident}' already exists` })
+            }
+
+        }
+
+
         provider.merge(data)
 
         // default behaviour in DB is to set activo

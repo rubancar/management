@@ -36,6 +36,7 @@ export default function SimpleSelect({label, options, helperText, onChange, remo
                     value={value}
                     onChange={handleChange}
                     autoWidth={false}
+                    error={!!helperText}
                 >
                     <MenuItem value="">
                         <em>Ninguno</em>

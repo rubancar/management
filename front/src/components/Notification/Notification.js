@@ -47,9 +47,9 @@ export default function Notification({ variant, ...props }) {
 
   const icon = getIconByType(props.type);
   const iconWithStyles = React.cloneElement(icon, {
-    classes: {
+    /*classes: {
       root: classes.notificationIcon,
-    },
+    },*/
     style: {
       color:
         variant !== "contained" &&
