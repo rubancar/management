@@ -13,7 +13,7 @@
     "@material-ui/pickers": "^3.2.10",
     "@material-ui/styles": "^4.9.14",
     "apexcharts": "^3.8.3",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "classnames": "^2.2.6",
     "date-fns": "^2.14.0",
     "font-awesome": "^4.7.0",
