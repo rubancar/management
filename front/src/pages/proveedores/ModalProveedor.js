@@ -13,7 +13,7 @@ import { Select, Input } from "../../components/Inputs"
 import { isIdentificacionValida, isEmpty, isEmail } from "../../utils/helpers"
 import { tipoIdentificacionValue, tiposIdentificacion } from "../../utils/options"
 import errorMessages from "../../utils/errors"
-import { create } from "../../actions/Proveedores"
+import { create, getProvider } from "../../actions/Proveedores"
 import Notification from "../../components/Notification";
 import { toast } from 'react-toastify';
 import { useForm, Controller } from "react-hook-form";
@@ -58,9 +58,9 @@ const DialogActions = withStyles((theme) => ({
     },
 }))(MuiDialogActions);
 
-export default function ModalProveedor({ isOpen, title, handleOnClose, maxWidth = "md" }) {
+export default function ModalProveedor({ isOpen, dataEdit, title, handleOnClose, maxWidth = "md" }) {
 
-   const { control, formState: {errors}, handleSubmit, getValues, reset /*trigger,*/  } = useForm()
+    const { control, formState: {errors}, handleSubmit, getValues, reset /*trigger,*/  } = useForm()
 
     const handleSaveButton = (data) => {
 
@@ -104,9 +104,31 @@ export default function ModalProveedor({ isOpen, title, handleOnClose, maxWidth 
     }
 
     useEffect(() => {
+        // if modal is Open and has data then fetch from the backend
+        if(isOpen & !!dataEdit) {
+            console.log('dataEdit', dataEdit)
+            const id = dataEdit.data[0]
+            getProvider({id})
+                .then(res => {
+                    console.log('res', res)
+                    reset({
+                        type_ident: res.type_ident,
+                        ident: res.ident,
+                        name: res.name,
+                        email: res.email,
+                        address: res.address,
+                        phone: res.phone
+                    })
+
+                })
+                .catch(err => {
+                    console.log(err)
+                })
+        }
         // clear form from errors and daa when modal is closed
         if(!isOpen) {
             console.log('limpiando form')
+            reset({})
         }
         // returned function will be called on component unmount 
         // return () => {  }
@@ -127,11 +149,12 @@ export default function ModalProveedor({ isOpen, title, handleOnClose, maxWidth 
                                 rules={{
                                     required: errorMessages.required
                                 }}
-                                render={({ onChange }) => <Select
-                                    onChange={(v) => onChange(tipoIdentificacionValue(v))}
+                                render={({ onChange, value }) => <Select
+                                    onChange={onChange}
                                     label="Tipo de indentificación"
                                     options={tiposIdentificacion}
                                     helperText={errors.type_ident ? errors.type_ident.message: undefined}
+                                    value={value}
                                 />}
                             />
                         </Grid>
@@ -140,19 +163,21 @@ export default function ModalProveedor({ isOpen, title, handleOnClose, maxWidth 
                                 name="ident"
                                 control={control}
                                 defaultValue=""
+                                label="Identificacion"
                                 rules={{ validate: value => {
                                         if(isEmpty(value)) return errorMessages.required
                                         const typeIdent = getValues('type_ident')
-                                        if(!typeIdent) return true
-                                        const resultValidation = isIdentificacionValida(typeIdent.value, value)
+                                        //if(typeIdent !== null) return true
+                                        const resultValidation = isIdentificacionValida(typeIdent, value)
                                         if(resultValidation.error) return resultValidation.mensaje
                                         return true
                                     }}}
-                                render={({ onChange }) =>
+                                render={({ onChange, value }) =>
                                     <Input
                                         label="Identificación"
                                         onChange={onChange}
                                         error={errors.ident ? errors.ident.message : undefined}
+                                        value={value}
                                     />
                                 }
                             />
@@ -163,11 +188,12 @@ export default function ModalProveedor({ isOpen, title, handleOnClose, maxWidth 
                                 control={control}
                                 defaultValue=""
                                 rules={{ required: errorMessages.required }}
-                                render={({ onChange }) =>
+                                render={({ onChange, value }) =>
                                     <Input
                                         label="Razón social"
                                         onChange={onChange}
                                         error={errors.name ? errors.name.message : undefined}
+                                        value={value}
                                     />
                                 }
                             />
@@ -183,11 +209,12 @@ export default function ModalProveedor({ isOpen, title, handleOnClose, maxWidth 
                                         return true
                                     }
                                 }}
-                                render={({ onChange }) =>
+                                render={({ onChange, value }) =>
                                     <Input
                                         label="Correo"
                                         onChange={onChange}
                                         error={errors.email ? errors.email.message : undefined}
+                                        value={value}
                                     />
                                 }
                             />
@@ -198,11 +225,12 @@ export default function ModalProveedor({ isOpen, title, handleOnClose, maxWidth 
                                 control={control}
                                 defaultValue=""
                                 rules={{ required: errorMessages.required  }}
-                                render={({ onChange }) =>
+                                render={({ onChange, value }) =>
                                     <Input
                                         label="Dirección"
                                         onChange={onChange}
                                         error={errors.address ? errors.address.message : undefined}
+                                        value={value}
                                     />
                                 }
                             />
@@ -213,11 +241,12 @@ export default function ModalProveedor({ isOpen, title, handleOnClose, maxWidth 
                                 control={control}
                                 defaultValue=""
                                 rules={{ required: errorMessages.required  }}
-                                render={({ onChange }) =>
+                                render={({ onChange, value }) =>
                                     <Input
                                         label="Teléfono"
                                         onChange={onChange}
                                         error={errors.phone ? errors.phone.message : undefined}
+                                        value={value}
                                     />
                                 }
                             />

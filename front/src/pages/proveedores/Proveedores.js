@@ -14,6 +14,7 @@ export default class Proveedores extends React.Component {
         super(props)
         this.state = {
             showModal: false,
+            dataEditModal: null,
             data: [],
             page: 0,
             total: 0,
@@ -29,11 +30,15 @@ export default class Proveedores extends React.Component {
     }
 
     handlOpenModal = () => {
-        this.setState({showModal:true})
+        this.setState({showModal:true, dataEditModal:null})
     }
 
     handleCloseModal = () => {
-        this.setState({showModal:false})
+        this.setState({showModal:false, dataEditModal:null})
+    }
+
+    handleOpenModalEdit = (data) => {
+        this.setState({showModal:true, dataEditModal:data})
     }
 
     onChangePage = (page) => {
@@ -71,7 +76,8 @@ export default class Proveedores extends React.Component {
         const {
             data,
             total,
-            showModal
+            showModal,
+            dataEditModal
         } = this.state
 
         return (
@@ -83,6 +89,7 @@ export default class Proveedores extends React.Component {
                         serverSide = {true}
                         data={data}
                         columns={[
+                            { name: "id", options: { display:"excluded", filter: false } },
                             { name: "name", label: "Nombre" },
                             { name: "ident", label: "RUC" },
                             { name: "phone", label: "Contacto" },
@@ -90,6 +97,9 @@ export default class Proveedores extends React.Component {
                         ]}
                         options={{
                             filterType: "checkbox",
+                            filter: false, // disable filter by column
+                            print: false, // disable print table
+                            download: false, // disable csv download
                             serverSide: true,
                             //onTableChange: this.handleTableChange,
                             onChangePage: this.onChangePage,
@@ -98,8 +108,8 @@ export default class Proveedores extends React.Component {
                             count: total,
                             rowsPerPageOptions: [],
                             customSearchRender: debounceSearchRender(400),
-                            customToolbarSelect: selectedRows => (
-                                <CustomToolbarSelect selectedRows={selectedRows} />
+                            customToolbarSelect: (selectedRows, displayData, setSelectedRows) => (
+                                <CustomToolbarSelect selectedRows={selectedRows} displayData={displayData} editAction={this.handleOpenModalEdit} />
                             )
                         }}
                     />
@@ -108,6 +118,7 @@ export default class Proveedores extends React.Component {
                     isOpen={showModal}
                     title="Nuevo Proveedor"
                     handleOnClose={this.handleCloseModal}
+                    dataEdit={dataEditModal}
                 />
             </>
         );

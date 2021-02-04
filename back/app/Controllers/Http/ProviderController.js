@@ -143,6 +143,17 @@ class ProviderController {
         return response.send({ mensaje: `Provider ${provider.name} editado exitosamente` })
     }
 
+    async getProvider({request, response}) {
+
+        const data = await validarRequest(request, {
+            id: { rule: 'required' }
+        })
+
+        const provider = await Provider.find(data.id)
+
+        return response.send( provider.toJSON() )
+
+    }
 }
 
 module.exports = ProviderController

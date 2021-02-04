@@ -41,7 +41,7 @@ Factory.blueprint('App/Models/Provider', (faker, i, data) => {
     return {
         name: faker.company(),
         ident: faker.ssn({ dashes: false }),
-        type_ident: "01",
+        type_ident: "2", // tipo pasaporte
         address: faker.address(),
         estado: "activo",
         email: faker.email(),

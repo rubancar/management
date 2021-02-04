@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-export default function Input({id, label, onChange, validate, error, defaultValue = "", disabled, variant, margin, InputProps}) {
+export default function Input({id, label, onChange, validate, error, defaultValue = "", disabled, variant, margin, InputProps, value}) {
     const classes = useStyles();
     // const [value, setValue] = React.useState(defaultValue);
 
@@ -38,6 +38,7 @@ export default function Input({id, label, onChange, validate, error, defaultValu
                     margin={margin}
                     size="small"
                     InputProps={InputProps}
+                    value={value}
                 />
             </FormControl>
     </>

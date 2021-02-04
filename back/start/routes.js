@@ -33,5 +33,6 @@ Route.group(() => {
     Route.post('edit', 'ProviderController.edit').middleware(['check_store'])
     Route.post('list', 'ProviderController.list').middleware(['check_store'])
     Route.delete('', 'ProviderController.delete').middleware(['check_store'])
+    Route.post('getprovider', 'ProviderController.getProvider').middleware(['check_store'])
 
 }).prefix('api/provider').middleware(['auth'])

@@ -21,23 +21,27 @@ class CustomToolbarSelect extends React.Component {
 
     handleClickDelete = () => {
         console.log("click! current selected rows", this.props.selectedRows)
-
     }
 
     handleClickEdit = () => {
-        console.log("click! current selected rows", this.props.selectedRows)
+        const { selectedRows, displayData, editAction } = this.props
+        const rowData = displayData[selectedRows.data[0].index]
+        if (editAction) editAction(rowData)
     }
 
+
     render() {
-        const { classes } = this.props;
+        const { classes, selectedRows: { data: dataSelected } } = this.props;
 
         return (
             <div className={"custom-toolbar-select"}>
-                <Tooltip title={"Editar columnas"}>
-                    <IconButton className={classes.iconButton} onClick={this.handleClickEdit}>
-                        <EditIcon className={classes.deleteIcon} />
-                    </IconButton>
-                </Tooltip>
+                {
+                    dataSelected.length === 1 && <Tooltip title={"Editar columnas"}>
+                        <IconButton className={classes.iconButton} onClick={this.handleClickEdit}>
+                            <EditIcon className={classes.deleteIcon} />
+                        </IconButton>
+                    </Tooltip>
+                }
                 <Tooltip title={"Eliminar columnas"}>
                     <IconButton className={classes.iconButton} onClick={this.handleClickDelete}>
                         <DeleteIcon className={classes.deleteIcon} />

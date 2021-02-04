@@ -17,12 +17,12 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-export default function SimpleSelect({label, options, helperText, onChange, removeMargin}) {
+export default function SimpleSelect({label, options, helperText, onChange, removeMargin, value}) {
     const classes = useStyles({removeMargin});
-    const [value, setValue] = React.useState('');
+    //const [value, setValue] = React.useState('');
 
     const handleChange = (event) => {
-        setValue(event.target.value);
+        //setValue(event.target.value);
         onChange && onChange(event.target.value);
     };
 
