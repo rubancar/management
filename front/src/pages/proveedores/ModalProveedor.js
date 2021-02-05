@@ -13,9 +13,10 @@ import { Select, Input } from "../../components/Inputs"
 import { isIdentificacionValida, isEmpty, isEmail } from "../../utils/helpers"
 import { tipoIdentificacionValue, tiposIdentificacion } from "../../utils/options"
 import errorMessages from "../../utils/errors"
-import { create, getProvider } from "../../actions/Proveedores"
-import Notification from "../../components/Notification";
-import { toast } from 'react-toastify';
+import toast from "../../utils/toast"
+import { create, getProvider, update } from "../../actions/Proveedores"
+//import Notification from "../../components/Notification";
+//import { toast } from 'react-toastify';
 import { useForm, Controller } from "react-hook-form";
 
 const styles = (theme) => ({
@@ -60,27 +61,31 @@ const DialogActions = withStyles((theme) => ({
 
 export default function ModalProveedor({ isOpen, dataEdit, title, handleOnClose, maxWidth = "md" }) {
 
-    const { control, formState: {errors}, handleSubmit, getValues, reset /*trigger,*/  } = useForm()
+    // TODO: use the variable isDirty from formState
+    const { register, control, formState: {errors, isDirty}, handleSubmit, getValues, reset /*trigger,*/  } = useForm()
 
     const handleSaveButton = (data) => {
 
-        data.type_ident = data.type_ident.value
+        // if dataEdit has a value then we are in edition mode
+        if(dataEdit){
+            update(data)
+                .then(res => {
+                    toast("info", res.mensaje)
+                    return handleOnClose()
+                })
+                .catch(err => {
+                    let message = "Error guardando proveedor"
+                    if(err.response.data && err.response.data.mensaje)
+                        message = err.response.data.mensaje
+                    return toast("error", message)
+                })
+            return
+        }
+
         create(data)
         .then(res => {
-            console.log("respuesta", res)
             if(res.mensaje) {
-                toast( // lauch toast
-                    <Notification
-                        type= "info"
-                        message= {`${res.mensaje}`}
-                        variant= "contained"
-                        color= "primary"
-                    />,
-                    {
-                        type: "info",
-                        className: "custom-toast"
-                    }
-                );
+                toast("info", res.mensaje)
                 return handleOnClose() // close modal
             }
         })
@@ -88,46 +93,32 @@ export default function ModalProveedor({ isOpen, dataEdit, title, handleOnClose,
             let message = "Error guardando proveedor"
             if(err.response.data && err.response.data.mensaje)
                 message = err.response.data.mensaje
-            return toast(
-                <Notification
-                    type= "report"
-                    message= {message}
-                    variant= "contained"
-                    color= "secondary"
-                />,
-                {
-                    type: "error",
-                    className: "custom-toast",
-                }
-            );
+            return toast("error", message)
         })
     }
 
     useEffect(() => {
         // if modal is Open and has data then fetch from the backend
         if(isOpen & !!dataEdit) {
-            console.log('dataEdit', dataEdit)
             const id = dataEdit.data[0]
             getProvider({id})
                 .then(res => {
-                    console.log('res', res)
                     reset({
-                        type_ident: res.type_ident,
+                        id: res.id,
+                        type_ident: parseInt(res.type_ident),
                         ident: res.ident,
                         name: res.name,
                         email: res.email,
                         address: res.address,
                         phone: res.phone
                     })
-
                 })
                 .catch(err => {
                     console.log(err)
                 })
         }
-        // clear form from errors and daa when modal is closed
+        // clear form from errors and data when modal is closed
         if(!isOpen) {
-            console.log('limpiando form')
             reset({})
         }
         // returned function will be called on component unmount 
@@ -142,6 +133,7 @@ export default function ModalProveedor({ isOpen, dataEdit, title, handleOnClose,
                 <DialogContent dividers>
                     <Grid container spacing={3}>
                         <Grid item xs={12} sm={6}>
+                            <input type="hidden" ref={register} name="id" />
                             <Controller
                                 name="type_ident"
                                 control={control}
@@ -257,7 +249,7 @@ export default function ModalProveedor({ isOpen, dataEdit, title, handleOnClose,
                     <Button autoFocus onClick={handleOnClose} color="primary">
                         Cancelar
                     </Button>
-                    <Button autoFocus onClick={handleSubmit(handleSaveButton)} color="primary">
+                    <Button autoFocus onClick={handleSubmit(handleSaveButton)} color="primary" disabled={!isDirty}>
                         Guardar
                     </Button>
                 </DialogActions>

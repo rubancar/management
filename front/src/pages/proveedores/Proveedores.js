@@ -3,8 +3,9 @@ import PageTitle from "../../components/PageTitle";
 import { Grid } from "@material-ui/core";
 import MUIDataTable, { debounceSearchRender } from "mui-datatables";
 import ModalProveedor from "./ModalProveedor";
-import { list, deleteProvider } from "../../actions/Proveedores"
+import { list, disable } from "../../actions/Proveedores"
 import CustomToolbarSelect from "./CustomToolbarSelect"
+import toast from "../../utils/toast"
 
 const general_limit = 20
 
@@ -35,6 +36,8 @@ export default class Proveedores extends React.Component {
 
     handleCloseModal = () => {
         this.setState({showModal:false, dataEditModal:null})
+        // TODO: when editing a single element, not update the entire list, just the item that was just updated
+        this.reloadTable()
     }
 
     handleOpenModalEdit = (data) => {
@@ -50,7 +53,14 @@ export default class Proveedores extends React.Component {
     }
 
     deleteProviders = (ids) => {
-
+        disable({ids:ids})
+            .then(res => {
+                toast("info", "Providers successfully deleted")
+            })
+            .catch(err => {
+                console.error("Error deleting providers", err)
+                toast("error", "There was an error deleting the providers, try again later")
+            })
     }
 
     reloadTable = () => {
@@ -109,7 +119,12 @@ export default class Proveedores extends React.Component {
                             rowsPerPageOptions: [],
                             customSearchRender: debounceSearchRender(400),
                             customToolbarSelect: (selectedRows, displayData, setSelectedRows) => (
-                                <CustomToolbarSelect selectedRows={selectedRows} displayData={displayData} editAction={this.handleOpenModalEdit} />
+                                <CustomToolbarSelect
+                                    selectedRows={selectedRows}
+                                    displayData={displayData}
+                                    editAction={this.handleOpenModalEdit}
+                                    deleteAction={this.deleteProviders}
+                                />
                             )
                         }}
                     />

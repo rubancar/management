@@ -20,7 +20,11 @@ const defaultToolbarSelectStyles = {
 class CustomToolbarSelect extends React.Component {
 
     handleClickDelete = () => {
-        console.log("click! current selected rows", this.props.selectedRows)
+        const { selectedRows, displayData, deleteAction } = this.props
+        console.log(selectedRows)
+        const selected = selectedRows.data.map(e => e.index)
+        const rows = selected.map(index => displayData[index].data[0])
+        deleteAction(rows)
     }
 
     handleClickEdit = () => {

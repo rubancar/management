@@ -22,7 +22,7 @@ export default function SimpleSelect({label, options, helperText, onChange, remo
     //const [value, setValue] = React.useState('');
 
     const handleChange = (event) => {
-        //setValue(event.target.value);
+      //  setValue(event.target.value);
         onChange && onChange(event.target.value);
     };
 

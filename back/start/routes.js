@@ -30,9 +30,10 @@ Route.group(() => {
 
 Route.group(() => {
     Route.post('create', 'ProviderController.create').middleware(['check_store'])
-    Route.post('edit', 'ProviderController.edit').middleware(['check_store'])
+    Route.post('update', 'ProviderController.update').middleware(['check_store'])
     Route.post('list', 'ProviderController.list').middleware(['check_store'])
     Route.delete('', 'ProviderController.delete').middleware(['check_store'])
     Route.post('getprovider', 'ProviderController.getProvider').middleware(['check_store'])
+    Route.post('disable', 'ProviderController.disable').middleware(['check_store'])
 
 }).prefix('api/provider').middleware(['auth'])

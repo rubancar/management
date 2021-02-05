@@ -62,11 +62,11 @@ class ProviderController {
         return response.send({ mensaje: `Proveedor ${data.name} creado exitosamente` })
     }
 
-    async edit({ request, response }) {
+    async update({ request, response }) {
 
         const data = await validarRequest(request, {
             id: { rule: 'required|integer' },
-            type_ident: { rule: 'required_if:ident|string' },
+            type_ident: { rule: 'required_if:ident' },
             ident: { rule: 'required_if:type_ident|string' },
             name: { rule: 'string' },
             email: { rule: 'email' },
@@ -83,7 +83,8 @@ class ProviderController {
         }
 
         // check if provider already exists with the same identification
-        if(data.type_ident & data.ident) {
+        console.log(' data', data)
+        if(data.type_ident && data.ident) {
 
             const exist_provider = await Provider.query()
             .where('ident', data.ident)
@@ -91,9 +92,11 @@ class ProviderController {
             .whereNot('id', data.id)
             .first()
 
+            console.log('exist_provider', exist_provider)
+
             if(exist_provider) {
-                Logger.debug(`Provider already exist with id %i:`, exist_provider)
-                return response.status(412).send({ mensaje: `Provider with same identification '${data.ident}' already exists` })
+                Logger.warning(`Another provider exists with same identification [type_ident: %s, ident: %s]`, data.type_ident, data.ident)
+                return response.status(412).send({ mensaje: `Another provider with same identification '${data.ident}' already exists` })
             }
     
         }
@@ -109,38 +112,15 @@ class ProviderController {
         return response.send({ mensaje: `Provider ${provider.name} editado exitosamente` })
     }
 
-    async delete({ request, response }) {
+    async disable({ request, response }) {
 
         const data = await validarRequest(request, {
             ids: { rule: 'required|array' }
         })
 
-        // check if provider already exists with the same identification
-        if(data.type_ident & data.ident) {
+        await Provider.query().whereIn('id', data.ids).update({estado:'inactivo'})
 
-            const exist_provider = await Provider.query()
-                .where('ident', data.ident)
-                .where('type_ident', data.type_ident)
-                .whereNot('id', data.id)
-                .first()
-
-            if(exist_provider) {
-                Logger.debug(`Provider already exist with id %i:`, exist_provider)
-                return response.status(412).send({ mensaje: `Provider with same identification '${data.ident}' already exists` })
-            }
-
-        }
-
-
-        provider.merge(data)
-
-        // default behaviour in DB is to set activo
-        // data.estado = 'activo'
-        const edited_provider = await provider.save()
-
-        Logger.debug(`Provider edited %j:`, edited_provider)
-
-        return response.send({ mensaje: `Provider ${provider.name} editado exitosamente` })
+        return response.send({ mensaje: `Providers successfully updated` })
     }
 
     async getProvider({request, response}) {
